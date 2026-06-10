@@ -18,23 +18,16 @@
 name: main jdk17 windows build (multi-locale)
 
 on:
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-
+  workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        java: [ '17' ]
-        locale: [ 'tr_TR.UTF-8', 'de_DE.UTF-8' ]
+        java: ['17']
+        locale: ['tr_TR.UTF-8', 'de_DE.UTF-8']
+      fail-fast: false
     env:
       LANG: ${{ matrix.locale }}
       LC_ALL: ${{ matrix.locale }}
@@ -48,4 +41,5 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
-        run: mvn clean test install javadoc:aggregate -Pci -Pe2e -B "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+        run: mvn clean test install javadoc:aggregate -Pci -Pe2e -B 
+          "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"

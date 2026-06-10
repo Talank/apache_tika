@@ -32,28 +32,9 @@ name: Docker release - tika-server and tika-grpc
 # (`*-*`) that gates `:latest` defense-in-depth for the workflow_dispatch
 # path where the auto-trigger filter isn't in play.
 on:
-  push:
-    tags-ignore:
-      - '*-*'   # anything with a hyphen is a prerelease/non-GA tag
-      - '*_*'   # anything with an underscore is a branch/non-version tag
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tika release tag (e.g. 4.0.0-alpha-1). Must already exist as a git tag.'
-        required: true
-      build_number:
-        description: 'Docker build number for this Tika tag (1 for first build, increment on rebuilds).'
-        required: true
-        default: '1'
-      source_ref:
-        description: 'Git ref to build from. Defaults to `tag`. Override only for Dockerfile-update rebuilds where the source has changed since the original tag was cut.'
-        required: false
-
-# Resolve the effective tag and build number from either trigger source.
-# `inputs.*` is populated only by workflow_dispatch; on a tag push, fall
-# back to the tag's short name (e.g. `4.0.0`) and build_number=1.
 env:
-  TAG:   ${{ inputs.tag          || github.ref_name }}
+  TAG: ${{ inputs.tag          || github.ref_name }}
   BUILD: ${{ inputs.build_number || '1' }}
 
 jobs:
@@ -194,7 +175,8 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven (skip tests)
-        run: mvn clean install -DskipTests -B "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+        run: mvn clean install -DskipTests -B 
+          "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
@@ -270,3 +252,5 @@ jobs:
           # we track latest from the start (unlike apache/tika the server image,
           # whose :latest stays on 3.x until 4.0.0 GA).
           tags: ${{ steps.grpc_tags.outputs.tags }}
+    strategy:
+      fail-fast: false
