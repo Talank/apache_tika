@@ -18,22 +18,19 @@
 name: main jdk17 windows build
 
 on:
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - 'docs/**'
-
+  workflow_dispatch:
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
-        java: [ '17' ]
+        java: ['17']
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v6
@@ -47,4 +44,5 @@ jobs:
           cache: 'maven'
       - name: Build with Maven
         working-directory: 'tika build dir'
-        run: mvn clean test install javadoc:aggregate -Pci -Pe2e -B "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+        run: mvn clean test install javadoc:aggregate -Pci -Pe2e -B 
+          "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
