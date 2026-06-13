@@ -45,5 +45,7 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
+        env:
+          MAVEN_OPTS: "-Duser.language=en -Duser.country=US"
         run: mvn clean test install javadoc:aggregate -Pci -Pe2e -B 
           "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
