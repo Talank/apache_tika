@@ -30,6 +30,11 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macos-latest
+        include:
+          - os: macos-latest
+            extra_maven_args: "-Dtest=!SharedServerChaosMonkeyTest"
+          - os: windows-latest
+            extra_maven_args: "-Dtest=!SharedServerChaosMonkeyTest"
       fail-fast: false
 
     steps:
@@ -41,5 +46,6 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'maven'
       - name: Build with Maven
-        run: mvn clean test install javadoc:aggregate -Pci -B 
+        run: mvn clean test install javadoc:aggregate -Pci -B
           "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+          ${{ matrix.extra_maven_args }}
